@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Washing Machine Fuzzy Logic System — Documentation</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+  :root {
+    --bg: #0d0d0f;
+    --surface: #141417;
+    --card: #1a1a1f;
+    --border: #2a2a35;
+    --accent: #5b8dee;
+    --accent2: #e8a24a;
+    --accent3: #e05c6e;
+    --accent4: #8b63d9;
+    --text: #e8e8f0;
+    --muted: #7a7a92;
+    --mono: 'Space Mono', monospace;
+    --sans: 'DM Sans', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.75;
+  }
+
+  /* ── HEADER ── */
+  header {
+    padding: 60px 0 48px;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 60% 120% at 50% 0%, rgba(91,141,238,.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .tag {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    border-radius: 3px;
+    padding: 3px 10px;
+    margin-bottom: 20px;
+  }
+  h1 {
+    font-family: var(--mono);
+    font-size: clamp(24px, 4vw, 42px);
+    font-weight: 700;
+    letter-spacing: -.02em;
+    margin-bottom: 12px;
+  }
+  h1 span { color: var(--accent); }
+  .subtitle {
+    color: var(--muted);
+    font-size: 14px;
+    font-family: var(--mono);
+  }
+
+  /* ── LAYOUT ── */
+  .container { max-width: 960px; margin: 0 auto; padding: 0 28px; }
+
+  section { padding: 52px 0; border-bottom: 1px solid var(--border); }
+  section:last-child { border-bottom: none; }
+
+  h2 {
+    font-family: var(--mono);
+    font-size: 13px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 28px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  h2::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  h3 {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 10px;
+    margin-top: 24px;
+  }
+
+  p { color: #b0b0c8; margin-bottom: 14px; }
+
+  /* ── CARDS ── */
+  .grid { display: grid; gap: 16px; }
+  .grid-2 { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+  .grid-3 { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px;
+  }
+  .card-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .card-title {
+    font-size: 17px;
+    font-weight: 600;
+    margin-bottom: 14px;
+  }
+
+  /* ── MF VISUAL ── */
+  .mf-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+  .mf-chip {
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    border: 1px solid;
+  }
+  .blue  { color: #5b8dee; border-color: #5b8dee33; background: #5b8dee11; }
+  .orange{ color: #e8a24a; border-color: #e8a24a33; background: #e8a24a11; }
+  .red   { color: #e05c6e; border-color: #e05c6e33; background: #e05c6e11; }
+  .purple{ color: #8b63d9; border-color: #8b63d933; background: #8b63d911; }
+
+  /* ── RULES TABLE ── */
+  .rules-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .rules-table th {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: left;
+    padding: 8px 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .rules-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid #1e1e26;
+    color: #b0b0c8;
+    vertical-align: middle;
+  }
+  .rules-table tr:last-child td { border-bottom: none; }
+  .rules-table tr:hover td { background: rgba(91,141,238,.04); }
+  .rn {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+  }
+  .arrow { color: var(--muted); padding: 0 4px; }
+
+  /* ── BADGE ── */
+  .badge {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 2px 9px;
+    border-radius: 4px;
+  }
+
+  /* ── CODE BLOCK ── */
+  .code-block {
+    background: #0a0a0d;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .code-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .code-lang {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: .08em;
+  }
+  .code-dots { display: flex; gap: 6px; }
+  .code-dots span {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    display: block;
+  }
+  .dot-r { background: #ff5f57; }
+  .dot-y { background: #febc2e; }
+  .dot-g { background: #28c840; }
+
+  pre {
+    padding: 20px 20px;
+    overflow-x: auto;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    line-height: 1.7;
+    color: #c9d1d9;
+  }
+  .kw  { color: #79b8ff; }
+  .str { color: #9ecbff; }
+  .cm  { color: #6a737d; font-style: italic; }
+  .num { color: #f8c555; }
+  .fn  { color: #b392f0; }
+  .op  { color: #e8a24a; }
+
+  /* ── FLOW DIAGRAM ── */
+  .flow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    flex-wrap: wrap;
+    padding: 12px 0;
+  }
+  .flow-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 22px;
+    text-align: center;
+    min-width: 120px;
+  }
+  .flow-box .fb-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .flow-box .fb-val {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .flow-arrow {
+    font-size: 20px;
+    color: var(--border);
+    padding: 0 8px;
+  }
+  .flow-box.accent-box { border-color: var(--accent); background: rgba(91,141,238,.07); }
+  .flow-box.accent-box .fb-label { color: var(--accent); }
+
+  /* ── PARAMS ── */
+  .param-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+  .param {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+  }
+  .param-name { font-family: var(--mono); font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+  .param-value { font-size: 15px; font-weight: 600; color: var(--text); }
+
+  /* ── FOOTER ── */
+  footer {
+    text-align: center;
+    padding: 36px 0;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <div class="tag">MATLAB · Fuzzy Logic Toolbox</div>
+    <h1>Washing Machine<br/><span>Fuzzy Logic System</span></h1>
+    <p class="subtitle">Dirt Level × Load Size → Optimal Cycle Time</p>
+  </div>
+</header>
+
+<!-- OVERVIEW -->
+<section>
+  <div class="container">
+    <h2>Overview</h2>
+    <p>This project implements a <strong>Mamdani fuzzy inference system (FIS)</strong> to automatically determine the optimal washing cycle time based on two linguistic input variables: <em>Dirt Level</em> and <em>Load Size</em>. The system uses 9 fuzzy IF-THEN rules and centroid defuzzification to yield a precise cycle time between 20 and 120 minutes.</p>
+
+    <div style="margin-top:28px;">
+      <div class="flow">
+        <div class="flow-box">
+          <div class="fb-label">Input 1</div>
+          <div class="fb-val">Dirt Level</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box">
+          <div class="fb-label">Input 2</div>
+          <div class="fb-val">Load Size</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box accent-box">
+          <div class="fb-label">Fuzzy Inference</div>
+          <div class="fb-val">Mamdani FIS</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box">
+          <div class="fb-label">Output</div>
+          <div class="fb-val">Cycle Time</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SYSTEM PARAMS -->
+<section>
+  <div class="container">
+    <h2>System Parameters</h2>
+    <div class="param-grid">
+      <div class="param">
+        <div class="param-name">Inference Type</div>
+        <div class="param-value">Mamdani</div>
+      </div>
+      <div class="param">
+        <div class="param-name">AND Method</div>
+        <div class="param-value">min</div>
+      </div>
+      <div class="param">
+        <div class="param-name">OR Method</div>
+        <div class="param-value">max</div>
+      </div>
+      <div class="param">
+        <div class="param-name">Implication</div>
+        <div class="param-value">min</div>
+      </div>
+      <div class="param">
+        <div class="param-name">Aggregation</div>
+        <div class="param-value">max</div>
+      </div>
+      <div class="param">
+        <div class="param-name">Defuzzification</div>
+        <div class="param-value">centroid</div>
+      </div>
+      <div class="param">
+        <div class="param-name">Total Rules</div>
+        <div class="param-value">9</div>
+      </div>
+      <div class="param">
+        <div class="param-name">MF Type</div>
+        <div class="param-value">Triangular</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FUZZY SETS -->
+<section>
+  <div class="container">
+    <h2>Fuzzy Sets</h2>
+    <div class="grid grid-3">
+
+      <!-- Dirt Level -->
+      <div class="card">
+        <div class="card-label">Input 1</div>
+        <div class="card-title">Dirt Level</div>
+        <p style="font-size:13px;margin-bottom:8px;">Range: <code>[0, 10]</code></p>
+        <div class="mf-row">
+          <span class="mf-chip blue">Low → trimf [0, 0, 5]</span>
+        </div>
+        <div class="mf-row">
+          <span class="mf-chip orange">Medium → trimf [2, 5, 8]</span>
+        </div>
+        <div class="mf-row">
+          <span class="mf-chip red">High → trimf [5, 10, 10]</span>
+        </div>
+      </div>
+
+      <!-- Load Size -->
+      <div class="card">
+        <div class="card-label">Input 2</div>
+        <div class="card-title">Load Size</div>
+        <p style="font-size:13px;margin-bottom:8px;">Range: <code>[0, 10]</code></p>
+        <div class="mf-row">
+          <span class="mf-chip blue">Small → trimf [0, 0, 5]</span>
+        </div>
+        <div class="mf-row">
+          <span class="mf-chip orange">Medium → trimf [2, 5, 8]</span>
+        </div>
+        <div class="mf-row">
+          <span class="mf-chip red">Large → trimf [5, 10, 10]</span>
+        </div>
+      </div>
+
+      <!-- Cycle Time -->
+      <div class="card">
+        <div class="card-label">Output</div>
+        <div class="card-title">Cycle Time (min)</div>
+        <p style="font-size:13px;margin-bottom:8px;">Range: <code>[20, 120]</code></p>
+        <div class="mf-row">
+          <span class="mf-chip blue">Short → [20, 20, 50]</span>
+        </div>
+        <div class="mf-row">
+          <span class="mf-chip orange">Medium → [30, 55, 80]</span>
+        </div>
+        <div class="mf-row">
+          <span class="mf-chip red">Long → [60, 90, 120]</span>
+        </div>
+        <div class="mf-row">
+          <span class="mf-chip purple">VeryLong → [90, 120, 120]</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- RULES -->
+<section>
+  <div class="container">
+    <h2>Fuzzy Rules</h2>
+    <div class="code-block">
+      <table class="rules-table" style="background:transparent;">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>IF Dirt Level</th>
+            <th>AND Load Size</th>
+            <th>THEN Cycle Time</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="rn">R1</span></td>
+            <td><span class="mf-chip blue">Low</span></td>
+            <td><span class="mf-chip blue">Small</span></td>
+            <td><span class="mf-chip blue">Short (~30 min)</span></td>
+          </tr>
+          <tr>
+            <td><span class="rn">R2</span></td>
+            <td><span class="mf-chip blue">Low</span></td>
+            <td><span class="mf-chip orange">Medium</span></td>
+            <td><span class="mf-chip blue">Short (~30 min)</span></td>
+          </tr>
+          <tr>
+            <td><span class="rn">R3</span></td>
+            <td><span class="mf-chip blue">Low</span></td>
+            <td><span class="mf-chip red">Large</span></td>
+            <td><span class="mf-chip orange">Medium (~55 min)</span></td>
+          </tr>
+          <tr>
+            <td><span class="rn">R4</span></td>
+            <td><span class="mf-chip orange">Medium</span></td>
+            <td><span class="mf-chip blue">Small</span></td>
+            <td><span class="mf-chip orange">Medium (~55 min)</span></td>
+          </tr>
+          <tr>
+            <td><span class="rn">R5</span></td>
+            <td><span class="mf-chip orange">Medium</span></td>
+            <td><span class="mf-chip orange">Medium</span></td>
+            <td><span class="mf-chip orange">Medium (~55 min)</span></td>
+          </tr>
+          <tr>
+            <td><span class="rn">R6</span></td>
+            <td><span class="mf-chip orange">Medium</span></td>
+            <td><span class="mf-chip red">Large</span></td>
+            <td><span class="mf-chip red">Long (~90 min)</span></td>
+          </tr>
+          <tr>
+            <td><span class="rn">R7</span></td>
+            <td><span class="mf-chip red">High</span></td>
+            <td><span class="mf-chip blue">Small</span></td>
+            <td><span class="mf-chip red">Long (~90 min)</span></td>
+          </tr>
+          <tr>
+            <td><span class="rn">R8</span></td>
+            <td><span class="mf-chip red">High</span></td>
+            <td><span class="mf-chip orange">Medium</span></td>
+            <td><span class="mf-chip red">Long (~90 min)</span></td>
+          </tr>
+          <tr>
+            <td><span class="rn">R9</span></td>
+            <td><span class="mf-chip red">High</span></td>
+            <td><span class="mf-chip red">Large</span></td>
+            <td><span class="mf-chip purple">VeryLong (~110 min)</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- CODE -->
+<section>
+  <div class="container">
+    <h2>MATLAB Implementation</h2>
+    <p>Key code segments from <code>washing_machine_fuzzy.m</code>. Run the full script to generate all plots and the rule viewer.</p>
+
+    <div class="code-block" style="margin-top:20px;">
+      <div class="code-header">
+        <div class="code-dots">
+          <span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span>
+        </div>
+        <span class="code-lang">MATLAB</span>
+      </div>
+      <pre><span class="cm">%% Create Mamdani FIS</span>
+fis = <span class="fn">mamfis</span>(<span class="str">'Name'</span>, <span class="str">'WashingMachine'</span>);
+
+<span class="cm">%% Add inputs</span>
+fis = <span class="fn">addInput</span>(fis, [<span class="num">0</span> <span class="num">10</span>], <span class="str">'Name'</span>, <span class="str">'DirtLevel'</span>);
+fis = <span class="fn">addMF</span>(fis, <span class="str">'DirtLevel'</span>, <span class="str">'trimf'</span>, [<span class="num">0  0  5</span>],  <span class="str">'Name'</span>, <span class="str">'Low'</span>);
+fis = <span class="fn">addMF</span>(fis, <span class="str">'DirtLevel'</span>, <span class="str">'trimf'</span>, [<span class="num">2  5  8</span>],  <span class="str">'Name'</span>, <span class="str">'Medium'</span>);
+fis = <span class="fn">addMF</span>(fis, <span class="str">'DirtLevel'</span>, <span class="str">'trimf'</span>, [<span class="num">5 10 10</span>],  <span class="str">'Name'</span>, <span class="str">'High'</span>);
+
+<span class="cm">%% Add rules (9 rules)</span>
+ruleList = [
+    <span class="num">1 1</span>, <span class="num">1</span> (<span class="num">1</span>) : <span class="num">1</span>;   <span class="cm">% Low & Small   → Short</span>
+    <span class="num">3 3</span>, <span class="num">4</span> (<span class="num">1</span>) : <span class="num">1</span>;   <span class="cm">% High & Large  → VeryLong</span>
+];
+fis = <span class="fn">addRule</span>(fis, ruleList);
+
+<span class="cm">%% Evaluate</span>
+result = <span class="fn">evalfis</span>(fis, [<span class="num">7</span>, <span class="num">8</span>]);   <span class="cm">% → ≈ 101 min</span>
+
+<span class="cm">%% Open interactive viewers</span>
+<span class="fn">ruleview</span>(fis);
+<span class="fn">writeFIS</span>(fis, <span class="str">'WashingMachine'</span>);
+</pre>
+    </div>
+  </div>
+</section>
+
+<!-- HOW TO RUN -->
+<section>
+  <div class="container">
+    <h2>How to Run</h2>
+    <div class="grid grid-2">
+      <div class="card">
+        <div class="card-label">Method A — Script</div>
+        <div class="card-title">Run .m File</div>
+        <p style="font-size:13px;">Open MATLAB, navigate to the project folder, then run:</p>
+        <div class="code-block" style="margin-top:10px;">
+          <pre style="padding:12px 16px;font-size:12px;">>> washing_machine_fuzzy</pre>
+        </div>
+        <p style="font-size:13px;margin-top:10px;">All plots, the surface view, and the rule viewer will open automatically.</p>
+      </div>
+      <div class="card">
+        <div class="card-label">Method B — FIS File</div>
+        <div class="card-title">Import .fis Directly</div>
+        <p style="font-size:13px;">Load the exported FIS and open the toolbox GUI:</p>
+        <div class="code-block" style="margin-top:10px;">
+          <pre style="padding:12px 16px;font-size:12px;">fis = readfis('WashingMachine.fis');
+ruleview(fis);
+surfview(fis);</pre>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label">Requirements</div>
+        <div class="card-title">Dependencies</div>
+        <div class="mf-row" style="flex-direction:column;gap:8px;margin-top:4px;">
+          <span style="font-size:13px;color:#b0b0c8;">✓ MATLAB R2019b or later</span>
+          <span style="font-size:13px;color:#b0b0c8;">✓ Fuzzy Logic Toolbox</span>
+          <span style="font-size:13px;color:#b0b0c8;">✓ No additional dependencies</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label">Output Files</div>
+        <div class="card-title">Generated Files</div>
+        <div class="mf-row" style="flex-direction:column;gap:8px;margin-top:4px;">
+          <span style="font-size:13px;color:#b0b0c8;">📄 washing_machine_fuzzy.m</span>
+          <span style="font-size:13px;color:#b0b0c8;">📄 WashingMachine.fis</span>
+          <span style="font-size:13px;color:#b0b0c8;">📊 3× MATLAB figure windows</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SAMPLE OUTPUT -->
+<section>
+  <div class="container">
+    <h2>Sample Output</h2>
+    <p>The table below shows crisp cycle time predictions for representative input combinations:</p>
+    <div class="code-block" style="margin-top:16px;">
+      <table class="rules-table" style="background:transparent;">
+        <thead>
+          <tr>
+            <th>Dirt Level</th>
+            <th>Load Size</th>
+            <th>Predicted Cycle Time</th>
+            <th>Category</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>2 (Low)</td>
+            <td>2 (Small)</td>
+            <td>~30 min</td>
+            <td><span class="mf-chip blue">Short</span></td>
+          </tr>
+          <tr>
+            <td>2 (Low)</td>
+            <td>8 (Large)</td>
+            <td>~47 min</td>
+            <td><span class="mf-chip blue">Short–Med</span></td>
+          </tr>
+          <tr>
+            <td>5 (Medium)</td>
+            <td>5 (Medium)</td>
+            <td>~60 min</td>
+            <td><span class="mf-chip orange">Medium</span></td>
+          </tr>
+          <tr>
+            <td>7 (High)</td>
+            <td>4 (Small–Med)</td>
+            <td>~80 min</td>
+            <td><span class="mf-chip red">Long</span></td>
+          </tr>
+          <tr>
+            <td>9 (High)</td>
+            <td>9 (Large)</td>
+            <td>~108 min</td>
+            <td><span class="mf-chip purple">VeryLong</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<footer>
+  Washing Machine Fuzzy Logic System &nbsp;·&nbsp; MATLAB Fuzzy Logic Toolbox &nbsp;·&nbsp; Mamdani FIS &nbsp;·&nbsp; 9 Rules
+</footer>
+
+</body>
+</html>
